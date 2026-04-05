@@ -1,0 +1,225 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://archviber.dev/schemas/architect.schema.json",
+  "title": "ArchProject",
+  "description": "JSON Schema for architect.json files produced by the ArchViber plugin. Validates the canonical architecture data format (schemaVersion 1+).",
+  "type": "object",
+  "required": ["schemaVersion", "name", "nodes", "edges"],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "type": "number",
+      "minimum": 1,
+      "description": "Schema version number. Starts at 1 and increments on breaking changes."
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Human-readable project name."
+    },
+    "nodes": {
+      "type": "array",
+      "description": "All nodes in the architecture graph — containers and blocks.",
+      "items": {
+        "$ref": "#/definitions/ArchNode"
+      }
+    },
+    "edges": {
+      "type": "array",
+      "description": "Directed dependency edges between nodes.",
+      "items": {
+        "$ref": "#/definitions/ArchEdge"
+      }
+    },
+    "decisions": {
+      "type": "array",
+      "description": "Architecture Decision Records (ADRs). Optional Phase 4 extension.",
+      "items": {
+        "$ref": "#/definitions/DesignDecision"
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Arbitrary project-level metadata. No schema constraints.",
+      "additionalProperties": true
+    }
+  },
+  "definitions": {
+    "ArchNode": {
+      "description": "A node in the architecture graph — either a container (grouping) or a block (unit of work).",
+      "oneOf": [
+        { "$ref": "#/definitions/ArchContainer" },
+        { "$ref": "#/definitions/ArchBlock" }
+      ]
+    },
+    "ArchContainer": {
+      "title": "ArchContainer",
+      "description": "A logical grouping node. Visually displayed as a colored region containing blocks.",
+      "type": "object",
+      "required": ["id", "type", "name", "color"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Unique stable identifier for this node."
+        },
+        "type": {
+          "type": "string",
+          "const": "container",
+          "description": "Discriminator field. Must be \"container\"."
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Display name of this container."
+        },
+        "color": {
+          "type": "string",
+          "enum": ["blue", "green", "purple", "amber", "rose", "slate"],
+          "description": "Visual accent color for the container region."
+        },
+        "collapsed": {
+          "type": "boolean",
+          "description": "If true, children are hidden in the diagram UI."
+        }
+      }
+    },
+    "ArchBlock": {
+      "title": "ArchBlock",
+      "description": "A unit of work (service, component, module). Can be grouped inside a container.",
+      "type": "object",
+      "required": ["id", "type", "name", "description", "status"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Unique stable identifier for this node."
+        },
+        "type": {
+          "type": "string",
+          "const": "block",
+          "description": "Discriminator field. Must be \"block\"."
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Display name of this block."
+        },
+        "description": {
+          "type": "string",
+          "description": "Short description of what this block does."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["idle", "waiting", "building", "done", "error", "blocked"],
+          "description": "Current build/implementation status of this block."
+        },
+        "parentId": {
+          "type": "string",
+          "minLength": 1,
+          "description": "ID of the parent ArchContainer. Omit for orphan (ungrouped) blocks."
+        },
+        "techStack": {
+          "type": "string",
+          "description": "Comma-separated or free-text technology stack description."
+        },
+        "summary": {
+          "type": "string",
+          "description": "Free-text summary of the block's implementation state."
+        },
+        "errorMessage": {
+          "type": "string",
+          "description": "Error or blocker description when status is \"error\" or \"blocked\"."
+        }
+      }
+    },
+    "ArchEdge": {
+      "title": "ArchEdge",
+      "description": "A directed dependency edge between two nodes.",
+      "type": "object",
+      "required": ["id", "source", "target", "type"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Unique stable identifier for this edge."
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1,
+          "description": "ID of the source node. Convention: source depends on target."
+        },
+        "target": {
+          "type": "string",
+          "minLength": 1,
+          "description": "ID of the target node."
+        },
+        "type": {
+          "type": "string",
+          "enum": ["sync", "async", "bidirectional"],
+          "description": "Communication pattern. sync = request/response, async = event/queue, bidirectional = both directions."
+        },
+        "label": {
+          "type": "string",
+          "description": "Optional label describing the relationship (e.g. \"REST\", \"gRPC\", \"event\")."
+        }
+      }
+    },
+    "DesignDecision": {
+      "title": "DesignDecision",
+      "description": "An Architecture Decision Record (ADR) capturing a significant design choice.",
+      "type": "object",
+      "required": ["id", "title", "context", "options", "chosen", "rationale", "date", "status"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Unique stable identifier for this decision."
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Short title summarising the decision."
+        },
+        "context": {
+          "type": "string",
+          "description": "Background and problem statement that drove the decision."
+        },
+        "options": {
+          "type": "array",
+          "description": "Alternative options that were considered.",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        },
+        "chosen": {
+          "type": "string",
+          "description": "The selected option from the options array."
+        },
+        "rationale": {
+          "type": "string",
+          "description": "Why this option was chosen over the alternatives."
+        },
+        "date": {
+          "type": "string",
+          "description": "ISO 8601 date the decision was made (e.g. \"2026-04-03\").",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["active", "superseded", "deprecated"],
+          "description": "Lifecycle status of this decision."
+        },
+        "supersededBy": {
+          "type": "string",
+          "description": "ID of the DesignDecision that replaced this one (only when status is \"superseded\")."
+        }
+      }
+    }
+  }
+}
