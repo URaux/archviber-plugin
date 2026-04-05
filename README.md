@@ -40,6 +40,7 @@ cd archviber-plugin/web && npm install && npm run build
 | `/archviber:export [--format]` | Export yaml / mermaid / json / adr | 导出多种格式 |
 | `/archviber:import [path]` | Reverse-engineer codebase | 从代码逆向生成架构 |
 | `/archviber:decide <title>` | Record design decision (ADR) | 记录设计决策 |
+| `/archviber:brainstorm [topic]` | Interactive architecture brainstorm | 交互式架构头脑风暴 |
 | `/archviber:open` | Launch interactive canvas | 启动交互式画布 |
 
 ---
@@ -70,7 +71,7 @@ cd archviber-plugin/web && npm install && npm run build
 
 ```
 archviber-plugin/
-├── commands/          # 7 slash commands / 7个斜杠命令
+├── commands/          # 8 slash commands / 8个斜杠命令
 ├── agents/            # arch-reviewer, arch-importer
 ├── skills/            # arch-schema, arch-patterns
 ├── core/              # Types, CRUD, serialization, topo-sort
@@ -78,6 +79,10 @@ archviber-plugin/
 ├── scripts/serve.mjs  # Zero-dep Node.js server / 零依赖服务器
 └── web/               # Vite + React Flow canvas / 画布前端
 ```
+
+## Friends
+
+- [LINUX DO](https://linux.do/) — 真正的技术社区
 
 ## License
 
