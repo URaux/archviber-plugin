@@ -3,7 +3,7 @@
  */
 import { create } from 'zustand'
 import type { Edge, Node } from '@xyflow/react'
-import type { ArchProject, CanvasNodeData } from './types'
+import type { ArchProject, CanvasNodeData, DesignDecision } from './types'
 import { projectToRFNodes, projectToRFEdges, rfToProject } from './mapping'
 
 const MAX_UNDO = 20
@@ -17,6 +17,7 @@ interface CanvasStore {
   project: ArchProject | null
   projectName: string
   schemaVersion: number
+  decisions: DesignDecision[]
   rfNodes: Node<CanvasNodeData>[]
   rfEdges: Edge[]
   past: Snapshot[]
@@ -38,6 +39,7 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
   project: null,
   projectName: 'Untitled',
   schemaVersion: 1,
+  decisions: [],
   rfNodes: [],
   rfEdges: [],
   past: [],
@@ -50,6 +52,7 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
       project: p,
       projectName: p.name,
       schemaVersion: p.schemaVersion,
+      decisions: p.decisions ?? [],
       rfNodes,
       rfEdges,
       past: [],

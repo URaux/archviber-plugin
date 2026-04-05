@@ -44,6 +44,20 @@ export interface ArchEdge {
   label?: string
 }
 
+// ─── Design Decision ────────────────────────────────────
+
+export interface DesignDecision {
+  id: string
+  title: string
+  context: string
+  options: string[]
+  chosen: string
+  rationale: string
+  date: string
+  status: 'active' | 'superseded' | 'deprecated'
+  supersededBy?: string
+}
+
 // ─── Project ─────────────────────────────────────────────
 
 export interface ArchProject {
@@ -51,6 +65,7 @@ export interface ArchProject {
   name: string
   nodes: ArchNode[]
   edges: ArchEdge[]
+  decisions?: DesignDecision[]
   metadata?: Record<string, unknown>
 }
 

@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react'
+import { useEffect, useCallback, useState } from 'react'
 import {
   ReactFlow,
   ReactFlowProvider,
@@ -21,13 +21,15 @@ import { ContainerNode } from './components/ContainerNode'
 import { BlockNode } from './components/BlockNode'
 import { SyncEdge, AsyncEdge, BidirectionalEdge } from './components/edges'
 import { layoutArchitectureCanvas } from './lib/graph-layout'
+import { DecisionPanel } from './components/DecisionPanel'
 
 const nodeTypes = { container: ContainerNode, block: BlockNode }
 const edgeTypes = { sync: SyncEdge, async: AsyncEdge, bidirectional: BidirectionalEdge }
 
 function Canvas() {
-  const { rfNodes, rfEdges, loadFromApi, saveToApi, setCanvas, pushSnapshot, undo, redo, projectName } = useCanvasStore()
+  const { rfNodes, rfEdges, decisions, loadFromApi, saveToApi, setCanvas, pushSnapshot, undo, redo, projectName } = useCanvasStore()
   const { fitView, getNodes } = useReactFlow()
+  const [showDecisions, setShowDecisions] = useState(false)
 
   useEffect(() => {
     loadFromApi()
@@ -136,13 +138,23 @@ function Canvas() {
         <button onClick={() => { void handleExportPng() }} className="px-3 py-1 rounded border border-slate-200 bg-white hover:bg-slate-50 text-xs text-slate-600">
           Export PNG
         </button>
+        <button
+          onClick={() => setShowDecisions(!showDecisions)}
+          className={`px-3 py-1 rounded border text-xs ${
+            showDecisions
+              ? 'border-orange-300 bg-orange-50 text-orange-700'
+              : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-600'
+          }`}
+        >
+          Decisions{decisions.length > 0 ? ` (${decisions.length})` : ''}
+        </button>
         <button onClick={() => { void saveToApi() }} className="px-3 py-1 rounded border border-[rgba(224,122,58,0.36)] bg-gradient-to-b from-[rgba(224,122,58,0.98)] to-[rgba(201,101,45,0.98)] hover:from-[rgba(236,137,74,0.98)] hover:to-[rgba(212,109,52,0.98)] text-xs text-orange-50 shadow-[0_4px_12px_rgba(224,122,58,0.22)]">
           Save
         </button>
       </div>
 
       {/* Canvas */}
-      <div className="flex-1">
+      <div className="flex-1 relative">
         <ReactFlow
           nodes={rfNodes}
           edges={rfEdges}
@@ -176,6 +188,9 @@ function Canvas() {
             </defs>
           </svg>
         </ReactFlow>
+        {showDecisions && (
+          <DecisionPanel decisions={decisions} onClose={() => setShowDecisions(false)} />
+        )}
       </div>
     </div>
   )
